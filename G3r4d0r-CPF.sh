@@ -10,8 +10,8 @@ echo '##    ##         ## ##   ##   ######### ##     ## ##     ## ##   ##       
 echo '##    ##  ##     ## ##    ##        ##  ##     ##  ##   ##  ##    ##          ##    ## ##        ##       '
 echo ' ######    #######  ##     ##       ##  ########    #####   ##     ##          ######  ##        ##       '
 echo 
-echo "Use: ./G3r4d0r-CPF.sh quantidadeCPF"
-echo "Exemplo: ./G3r4d0r-CPF.sh 10"
+echo "Use: ./G3r4d0r-CPF.sh quantidadeCPF Estado"
+echo "Exemplo: ./G3r4d0r-CPF.sh 10 SP"
 echo
 echo '  _                             _             __             '
 echo ' /  ._ _   _| o _|_  _   _ o   |_) | |_|_ _| (_   _ |_|_ ._  '
@@ -28,35 +28,56 @@ if [ $# -lt 1 ]; then
 fi
 
 Quantity=$1
+StateCode=$2
+
+# Função para calcular o dígito verificador
+calculate_verifier() {
+    local digits=$1
+    local sum=0
+    local multiplier=10
+
+    for ((i=1; i<=${#digits}; i++)); do
+        digit=${digits:i-1:1}
+        sum=$((sum + digit * multiplier))
+        multiplier=$((multiplier - 1))
+    done
+
+    remainder=$((sum % 11))
+    if [ $remainder -lt 2 ]; then
+        verifier=0
+    else
+        verifier=$((11 - remainder))
+    fi
+
+    echo "$verifier"
+}
 
 for ((i=1; i<=Quantity; i++)); do
-    # Gera os nove primeiros dígitos do CPF
-    digits=$(shuf -i 0-9 -n 9 | tr -d '\n')
-  
+    # Gera os oito primeiros dígitos do CPF
+    digits=$(shuf -i 0-9 -n 8 | tr -d '\n')
+
+    # Obtém o dígito do estado
+    case $StateCode in
+        "DF"|"GO"|"MS"|"TO") state_digit=1;;
+        "PA"|"AM"|"AC"|"AP"|"RO"|"RR") state_digit=2;;
+        "CE"|"MA"|"PI") state_digit=3;;
+        "PE"|"RN"|"PB"|"AL") state_digit=4;;
+        "BA"|"SE") state_digit=5;;
+        "MG") state_digit=6;;
+        "RJ"|"ES") state_digit=7;;
+        "SP") state_digit=8;;
+        "PR"|"SC") state_digit=9;;
+        "RS") state_digit=0;;
+        *) state_digit=0;;
+    esac
+
     # Calcula o primeiro dígito verificador
-    sum=0
-    for ((j=1; j<=9; j++)); do
-        digit=${digits:j-1:1}
-        sum=$((sum + digit * (11 - j)))
-    done
-    first_verifier=$((11 - (sum % 11)))
-    if [ $first_verifier -gt 9 ]; then
-        first_verifier=0
-    fi
-  
+    first_verifier=$(calculate_verifier "$digits$state_digit")
+
     # Calcula o segundo dígito verificador
-    digits="$digits$first_verifier"
-    sum=0
-    for ((j=1; j<=10; j++)); do
-        digit=${digits:j-1:1}
-        sum=$((sum + digit * (12 - j)))
-    done
-    second_verifier=$((11 - (sum % 11)))
-    if [ $second_verifier -gt 9 ]; then
-        second_verifier=0
-    fi
-  
+    second_verifier=$(calculate_verifier "$digits$state_digit$first_verifier")
+
     # Exibe o CPF completo
-    cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}-${first_verifier}${second_verifier}"
+    cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}$state_digit-$first_verifier$second_verifier"
     echo "$cpf"
 done
