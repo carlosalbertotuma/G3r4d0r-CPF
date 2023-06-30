@@ -64,7 +64,7 @@ while [ $generated -lt $Quantity ]; do
         cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}${state_digit}-${last_digits}"
 
         # Exibe o CPF formatado
-        echo "$cpf ($digits_sum)"
+        echo "$cpf"
         generated=$((generated + 1))
     fi
 done
