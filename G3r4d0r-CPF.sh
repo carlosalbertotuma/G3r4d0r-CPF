@@ -13,13 +13,14 @@ echo
 echo "Use: ./G3r4d0r-CPF.sh quantidadeCPF Estado"
 echo "Exemplo: ./G3r4d0r-CPF.sh 10 SP"
 echo
-echo "Version 2.0"
 echo '  _                             _             __             '
 echo ' /  ._ _   _| o _|_  _   _ o   |_) | |_|_ _| (_   _ |_|_ ._  '
 echo ' \_ | (/_ (_| |  |_ (_) _> o   |_) |   | (_| __) (_   |  | | '
 echo
 echo -e "\e[1;37mLivre uso e modificacao, mantenha os creditos em comentario.\e[0m"
 echo -e "\e[1;31mPs: Nao faca teste em dominios sem permissao\e[0m"
+echo
+echo "Version 2.1"
 }
 
 # Verifica se todos os três argumentos foram passados
@@ -27,8 +28,6 @@ if [ $# -lt 1 ]; then
   banner
   exit 1
 fi
-
-#!/bin/bash
 
 Quantity=$1
 StateCode=$2
@@ -59,13 +58,13 @@ while [ $generated -lt $Quantity ]; do
     # Calcula a soma dos dígitos, incluindo o dígito do estado
     digits_sum=$((10#${digits:0:1} + 10#${digits:1:1} + 10#${digits:2:1} + 10#${digits:3:1} + 10#${digits:4:1} + 10#${digits:5:1} + 10#${digits:6:1} + 10#${digits:7:1} + state_digit + 10#${last_digits:0:1} + 10#${last_digits:1:1}))
 
-    # Verifica se a soma é igual a 44 ou 55
-    if [ $digits_sum -eq 44 ] || [ $digits_sum -eq 55 ]; then
+    # Verifica se a soma está entre as opções válidas (22, 33, 44, 55, 66, 77, 88, 99)
+    if [ $digits_sum -eq 22 ] || [ $digits_sum -eq 33 ] || [ $digits_sum -eq 44 ] || [ $digits_sum -eq 55 ] || [ $digits_sum -eq 66 ] || [ $digits_sum -eq 77 ] || [ $digits_sum -eq 88 ] || [ $digits_sum -eq 99 ]; then
         # Formata o CPF no padrão 000.000.000-00
         cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}${state_digit}-${last_digits}"
 
         # Exibe o CPF formatado
-        echo "$cpf"
+        echo "$cpf ($digits_sum)"
         generated=$((generated + 1))
     fi
 done
