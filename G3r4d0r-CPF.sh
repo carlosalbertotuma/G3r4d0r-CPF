@@ -13,6 +13,7 @@ echo
 echo "Use: ./G3r4d0r-CPF.sh quantidadeCPF Estado"
 echo "Exemplo: ./G3r4d0r-CPF.sh 10 SP"
 echo
+echo "Version 2.0"
 echo '  _                             _             __             '
 echo ' /  ._ _   _| o _|_  _   _ o   |_) | |_|_ _| (_   _ |_|_ ._  '
 echo ' \_ | (/_ (_| |  |_ (_) _> o   |_) |   | (_| __) (_   |  | | '
@@ -27,33 +28,14 @@ if [ $# -lt 1 ]; then
   exit 1
 fi
 
+#!/bin/bash
+
 Quantity=$1
 StateCode=$2
 
-# Função para calcular o dígito verificador
-calculate_verifier() {
-    local digits=$1
-    local sum=0
-    local multiplier=10
-
-    for ((i=1; i<=${#digits}; i++)); do
-        digit=${digits:i-1:1}
-        sum=$((sum + digit * multiplier))
-        multiplier=$((multiplier - 1))
-    done
-
-    remainder=$((sum % 11))
-    if [ $remainder -lt 2 ]; then
-        verifier=0
-    else
-        verifier=$((11 - remainder))
-    fi
-
-    echo "$verifier"
-}
-
-for ((i=1; i<=Quantity; i++)); do
-    # Gera os oito primeiros dígitos do CPF
+generated=0
+while [ $generated -lt $Quantity ]; do
+    # Gera os primeiros oito dígitos aleatórios
     digits=$(shuf -i 0-9 -n 8 | tr -d '\n')
 
     # Obtém o dígito do estado
@@ -71,13 +53,19 @@ for ((i=1; i<=Quantity; i++)); do
         *) state_digit=0;;
     esac
 
-    # Calcula o primeiro dígito verificador
-    first_verifier=$(calculate_verifier "$digits$state_digit")
+    # Gera os dois últimos dígitos aleatórios
+    last_digits=$(shuf -i 0-9 -n 2 | tr -d '\n')
 
-    # Calcula o segundo dígito verificador
-    second_verifier=$(calculate_verifier "$digits$state_digit$first_verifier")
+    # Calcula a soma dos dígitos, incluindo o dígito do estado
+    digits_sum=$((10#${digits:0:1} + 10#${digits:1:1} + 10#${digits:2:1} + 10#${digits:3:1} + 10#${digits:4:1} + 10#${digits:5:1} + 10#${digits:6:1} + 10#${digits:7:1} + state_digit + 10#${last_digits:0:1} + 10#${last_digits:1:1}))
 
-    # Exibe o CPF completo
-    cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}$state_digit-$first_verifier$second_verifier"
-    echo "$cpf"
+    # Verifica se a soma é igual a 44 ou 55
+    if [ $digits_sum -eq 44 ] || [ $digits_sum -eq 55 ]; then
+        # Formata o CPF no padrão 000.000.000-00
+        cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}-${state_digit}${last_digits}"
+
+        # Exibe o CPF formatado
+        echo "$cpf"
+        generated=$((generated + 1))
+    fi
 done
