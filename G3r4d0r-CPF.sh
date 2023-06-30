@@ -62,7 +62,7 @@ while [ $generated -lt $Quantity ]; do
     # Verifica se a soma é igual a 44 ou 55
     if [ $digits_sum -eq 44 ] || [ $digits_sum -eq 55 ]; then
         # Formata o CPF no padrão 000.000.000-00
-        cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}-${state_digit}${last_digits}"
+        cpf="${digits:0:3}.${digits:3:3}.${digits:6:3}${state_digit}-${last_digits}"
 
         # Exibe o CPF formatado
         echo "$cpf"
